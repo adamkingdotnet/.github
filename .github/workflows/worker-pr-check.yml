@@ -1,6 +1,6 @@
 name: Reusable worker PR check
 
-# Reusable workflow: npm install, optional pre-build step, then
+# Reusable workflow: npm ci, optional pre-build step, then
 # `tsc --noEmit` and `npm test --workspaces --if-present`. Used by
 # the writer-worker monorepos (mls, pulse) where deploys go through
 # Cloudflare Workers Builds and PRs only need typecheck + tests.
@@ -42,7 +42,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
 
       - name: Pre-build
         if: inputs.pre-build != ''
