@@ -1,0 +1,26 @@
+name: Lint workflows
+
+# This repo's reusable workflows are workflow_call-only, so nothing
+# validated them on push/PR -- a broken YAML or shell snippet would
+# only surface in a downstream consumer's run. This lints them here
+# with actionlint (which also runs shellcheck on `run:` blocks).
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/**
+      - .github/dependabot.yml
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
