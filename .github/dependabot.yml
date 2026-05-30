@@ -1,0 +1,17 @@
+# Keep the reusable workflows' own pinned actions up to date.
+# This repo centralizes CI for adamkingdotnet/*, so its actions
+# drifting (e.g. setup-node falling two majors behind) silently
+# affects the whole fleet. Dependabot opens PRs here; the lint
+# workflow gates them.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns:
+          - "*"
