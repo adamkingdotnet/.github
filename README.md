@@ -11,7 +11,7 @@ The point: change the canonical CI shape in one place (here) and every consumer 
 | `tofu-apply.yml` | adamking.net, king-consulting, deervalleytexas.com | `tofu apply -auto-approve` on push to main |
 | `tofu-pr-check.yml` | (same) | `tofu fmt -check`, `tofu validate`, `tofu plan` on PRs |
 | `tofu-drift-check.yml` | (same) | Weekly `tofu plan -detailed-exitcode`; fails on drift |
-| `worker-pr-check.yml` | mls, pulse | `npm install` → optional pre-build → `tsc --noEmit` → `npm test` |
+| `worker-pr-check.yml` | mls, pulse | `npm ci` → optional pre-build → `tsc --noEmit` → `npm test` |
 
 ## Calling pattern
 
