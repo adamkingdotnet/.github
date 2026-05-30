@@ -19,6 +19,9 @@ on:
         default: 10
         type: number
 
+permissions:
+  contents: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
