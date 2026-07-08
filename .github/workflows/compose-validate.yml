@@ -1,0 +1,80 @@
+name: Reusable compose validate
+
+# docker compose config, plus optional caddy-build-and-validate, shellcheck,
+# and a sops-encrypted sanity check. Serves both host repos (nas-docker,
+# vps-docker); each passes only the inputs that apply.
+
+on:
+  workflow_call:
+    inputs:
+      compose-file:
+        type: string
+        default: compose.yaml
+      env-example:
+        type: string
+        default: .env.example
+      pre-config-command:
+        description: Shell run before `compose config` (e.g. create a host env_file).
+        type: string
+        default: ""
+      caddy-dir:
+        description: If set, `docker build` this dir and `caddy validate` the Caddyfile.
+        type: string
+        default: ""
+      caddyfile:
+        type: string
+        default: ""
+      shellcheck-globs:
+        description: If set, shellcheck these (space-separated) globs.
+        type: string
+        default: ""
+      sops-file:
+        description: If set, assert it is sops-encrypted.
+        type: string
+        default: ""
+      timeout-minutes:
+        type: number
+        default: 10
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: docker compose config
+        env:
+          ENV_EX: ${{ inputs.env-example }}
+          PRE: ${{ inputs.pre-config-command }}
+          CF: ${{ inputs.compose-file }}
+        run: |
+          if [ -f "$ENV_EX" ]; then cp "$ENV_EX" .env; fi
+          if [ -n "$PRE" ]; then bash -c "$PRE"; fi
+          docker compose -f "$CF" config -q
+      - name: caddy validate
+        if: ${{ inputs.caddy-dir != '' }}
+        env:
+          CDIR: ${{ inputs.caddy-dir }}
+          CFILE: ${{ inputs.caddyfile }}
+        run: |
+          docker build -t caddy-ci "$CDIR"
+          docker run --rm -v "$PWD/$CFILE:/etc/caddy/Caddyfile:ro" \
+            -e CLOUDFLARE_API_TOKEN=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
+            caddy-ci caddy validate --config /etc/caddy/Caddyfile
+      - name: shellcheck
+        if: ${{ inputs.shellcheck-globs != '' }}
+        env:
+          GLOBS: ${{ inputs.shellcheck-globs }}
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q shellcheck
+          # shellcheck disable=SC2086  # globs are intentionally word-split
+          shellcheck -S warning $GLOBS
+      - name: sops sanity
+        if: ${{ inputs.sops-file != '' }}
+        env:
+          SF: ${{ inputs.sops-file }}
+        run: grep -q 'ENC\[AES256_GCM' "$SF"
