@@ -1,0 +1,77 @@
+name: Reusable Python check
+
+# Setup (uv or pip), install, ruff, mypy, pytest, and an optional smoke run.
+# Defaults target a uv project (mls-model); netchaff passes installer=pip until
+# its Phase 5 uv migration.
+
+on:
+  workflow_call:
+    inputs:
+      installer:
+        description: "uv | pip"
+        type: string
+        default: uv
+      python-version:
+        type: string
+        default: "3.14"
+      install-command:
+        type: string
+        default: uv sync --group dev
+      lint-command:
+        type: string
+        default: uv run ruff check .
+      typecheck-command:
+        type: string
+        default: uv run mypy src/
+      test-command:
+        type: string
+        default: uv run pytest -q
+      smoke-command:
+        type: string
+        default: ""
+      timeout-minutes:
+        type: number
+        default: 10
+
+permissions:
+  contents: read
+
+jobs:
+  python-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup uv
+        if: ${{ inputs.installer == 'uv' }}
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+      - name: Setup Python
+        if: ${{ inputs.installer == 'pip' }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python-version }}
+          allow-prereleases: true
+      - name: Install
+        env:
+          CMD: ${{ inputs.install-command }}
+        run: bash -c "$CMD"
+      - name: Lint
+        env:
+          CMD: ${{ inputs.lint-command }}
+        run: bash -c "$CMD"
+      - name: Typecheck
+        env:
+          CMD: ${{ inputs.typecheck-command }}
+        run: bash -c "$CMD"
+      - name: Test
+        env:
+          CMD: ${{ inputs.test-command }}
+        run: bash -c "$CMD"
+      - name: Smoke
+        if: ${{ inputs.smoke-command != '' }}
+        env:
+          CMD: ${{ inputs.smoke-command }}
+        run: bash -c "$CMD"
