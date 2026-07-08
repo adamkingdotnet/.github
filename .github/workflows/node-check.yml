@@ -1,0 +1,64 @@
+name: Reusable Node check
+
+# npm ci, then optional lint / typecheck / test. For non-workspace Node repos
+# (adamking.net, king-consulting). The writer-worker monorepos (mls, pulse) use
+# worker-pr-check.yml instead.
+
+on:
+  workflow_call:
+    inputs:
+      run-lint:
+        type: boolean
+        default: true
+      run-typecheck:
+        type: boolean
+        default: true
+      run-test:
+        type: boolean
+        default: true
+      lint-command:
+        type: string
+        default: npm run lint
+      typecheck-command:
+        type: string
+        default: npx tsc --noEmit
+      typecheck-directory:
+        type: string
+        default: "."
+      test-command:
+        type: string
+        default: npm test
+      timeout-minutes:
+        type: number
+        default: 10
+
+permissions:
+  contents: read
+
+jobs:
+  node-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Lint
+        if: ${{ inputs.run-lint }}
+        env:
+          CMD: ${{ inputs.lint-command }}
+        run: bash -c "$CMD"
+      - name: Typecheck
+        if: ${{ inputs.run-typecheck }}
+        working-directory: ${{ inputs.typecheck-directory }}
+        env:
+          CMD: ${{ inputs.typecheck-command }}
+        run: bash -c "$CMD"
+      - name: Test
+        if: ${{ inputs.run-test }}
+        env:
+          CMD: ${{ inputs.test-command }}
+        run: bash -c "$CMD"
