@@ -6,12 +6,19 @@ The point: change the canonical CI shape in one place (here) and every consumer 
 
 ## Workflows
 
+Consumer lists below are verified against each repo's actual `uses:` — trust them over any stale header comment.
+
 | Workflow | Used by | What it does |
 |---|---|---|
-| `tofu-apply.yml` | adamking.net, king-consulting, deervalleytexas.com | `tofu apply -auto-approve` on push to main |
-| `tofu-pr-check.yml` | (same) | `tofu fmt -check`, `tofu validate`, `tofu plan` on PRs |
-| `tofu-drift-check.yml` | (same) | Weekly `tofu plan -detailed-exitcode`; fails on drift |
-| `worker-pr-check.yml` | mls, pulse | `npm ci` → optional pre-build → `tsc --noEmit` → `npm test` |
+| `node-check.yml` | adamking.net, king-consulting, cf-data-workers | `npm/pnpm` install → lint → `tsc --noEmit` → test |
+| `python-check.yml` | cf-data-workers (python/mls-model, uv), netchaff (pip), personal-data (uv) | ruff + mypy + pytest (installer input: uv \| pip) |
+| `ghcr-publish.yml` | netchaff | Build + push a multi-arch image to GHCR on push to main |
+| `compose-validate.yml` | nas-docker, vps-docker | `docker compose config` + shellcheck + caddy validate + sops check |
+| `tofu-apply.yml` | adamking.net, king-consulting, deervalleytexas.com, cf-data-workers | `tofu apply -auto-approve` on push to main |
+| `tofu-pr-check.yml` | adamking.net, king-consulting, deervalleytexas.com | `tofu fmt -check`, `tofu validate`, `tofu plan` on PRs |
+| `tofu-drift-check.yml` | adamking.net, king-consulting, deervalleytexas.com | Weekly `tofu plan -detailed-exitcode`; fails on drift |
+| `worker-pr-check.yml` | **none** (orphaned — mls/pulse folded into the cf-data-workers monorepo, which uses `node-check.yml`) | `npm ci` → optional pre-build → `tsc --noEmit` → `npm test` |
+| `agents-check.yml` | fleet (via each repo's `agents.yml`) | Assert AGENTS.md's working-agreement block matches `config` canonical |
 
 ## Calling pattern
 

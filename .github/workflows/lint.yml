@@ -10,6 +10,7 @@ on:
     paths:
       - .github/workflows/**
       - .github/dependabot.yml
+      - AGENTS.md
   push:
     branches: [main]
 
@@ -24,3 +25,15 @@ jobs:
       - uses: docker://rhysd/actionlint:1.7.12
         with:
           args: -color
+
+  # Self-gate the working-agreement block against config's canonical (this repo
+  # vendors it too). Inlined rather than calling agents-check.yml to avoid a
+  # self-referential workflow_call.
+  agreement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Working-agreement block matches config canonical
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/adamkingdotnet/config/main/scripts/check-agreement.sh -o /tmp/check-agreement.sh
+          bash /tmp/check-agreement.sh AGENTS.md
