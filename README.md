@@ -17,7 +17,6 @@ Consumer lists below are verified against each repo's actual `uses:` — trust t
 | `tofu-apply.yml` | adamking.net, king-consulting, deervalleytexas.com, cf-data-workers | `tofu apply -auto-approve` on push to main |
 | `tofu-pr-check.yml` | adamking.net, king-consulting, deervalleytexas.com | `tofu fmt -check`, `tofu validate`, `tofu plan` on PRs |
 | `tofu-drift-check.yml` | adamking.net, king-consulting, deervalleytexas.com | Weekly `tofu plan -detailed-exitcode`; fails on drift |
-| `worker-pr-check.yml` | **none** (orphaned — mls/pulse folded into the cf-data-workers monorepo, which uses `node-check.yml`) | `npm ci` → optional pre-build → `tsc --noEmit` → `npm test` |
 | `agents-check.yml` | fleet (via each repo's `agents.yml`) | Assert AGENTS.md's working-agreement block matches `config` canonical |
 
 ## Calling pattern

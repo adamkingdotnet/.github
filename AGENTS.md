@@ -35,7 +35,6 @@ Verified against the actual `uses:` in each consumer's caller — trust this ove
 | `compose-validate.yml` | nas-docker, vps-docker |
 | `tofu-apply.yml` | adamking.net, king-consulting, deervalleytexas.com, cf-data-workers |
 | `tofu-pr-check.yml` / `tofu-drift-check.yml` | adamking.net, king-consulting, deervalleytexas.com |
-| `worker-pr-check.yml` | **none — no caller in the fleet.** mls/pulse were folded into the cf-data-workers monorepo (`apps/mls-worker`, `apps/pulse-worker`), which uses `node-check.yml`. Confirm a real caller before assuming this is live. |
 | `lint.yml` | **this repo's own self-gate** (not reusable) |
 
 ## Hard conventions

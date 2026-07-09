@@ -1,8 +1,7 @@
 name: Reusable Node check
 
-# npm ci, then optional lint / typecheck / test. For non-workspace Node repos
-# (adamking.net, king-consulting). The writer-worker monorepos (mls, pulse) use
-# worker-pr-check.yml instead.
+# npm ci, then optional lint / typecheck / test.
+# Used by adamking.net, king-consulting, and cf-data-workers.
 
 on:
   workflow_call:
