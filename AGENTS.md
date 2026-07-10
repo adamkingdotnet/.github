@@ -45,7 +45,7 @@ Verified against the actual `uses:` in each consumer's caller — trust this ove
 
 ## Local verification
 
-The only self-gate is `lint.yml` → **actionlint** (`docker://rhysd/actionlint`), which also shellchecks `run:` blocks. Run it locally before pushing:
+`lint.yml` runs **two** self-gate jobs: **actionlint** (`docker://rhysd/actionlint`, which also shellchecks `run:` blocks) and **agreement** (the inlined working-agreement check — it verifies the vendored `BEGIN/END working-agreement` block in `AGENTS.md` still matches config's canonical via `check-agreement.sh`). Run actionlint locally before pushing:
 
 ```
 docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
@@ -55,7 +55,13 @@ For any load-bearing change, also sanity-check a real consumer's caller (the exa
 
 ### Applies here
 
-- **CI-green is two-sided:** this repo's actionlint passing does NOT mean the fleet is green. A merged change only proves out when a downstream consumer runs against `@main`. Verify a real caller.
+- **CI-green is two-sided:** this repo's own gates passing (actionlint + the working-agreement `agreement` job in `lint.yml`) do NOT mean the fleet is green. A merged change only proves out when a downstream consumer runs against `@main`. Verify a real caller.
 - **verify-latest, not verify-current:** action pin versions are the moving part; check they're current (Dependabot owns this).
 - **ssh:** secondary — relevant only because `compose-validate.yml` serves the host repos (nas-docker, vps-docker).
 - **wrangler:** N/A — no Workers deployed from this repo.
+
+## Shared agent layer
+
+This repo consumes the **`king-agents`** plugin from `adamkingdotnet/config` (auto-enabled via the `extraKnownMarketplaces` + `enabledPlugins` block in the committed `.claude/settings.json`). Permissions live in that same file, **byte-gated to config's `meta` template** — don't hand-edit it; changes belong in the config template and re-vendor. Only genuine machine-local grants go in `.claude/settings.json`'s gitignored sibling `.claude/settings.local.json`. A repo-level `!.claude/settings.json` negation in `.gitignore` keeps the committed harness file tracked despite the global `.claude/*` ignore.
+
+This is a **non-CI-bearing / advisory** repo: there is no `.claude/king.json`, so the plugin's verify-before-done `Stop` hook has no gate command to run here (nothing to build/test — "deploy" = merging to `main`). The template drift itself is CI-gated by `.github/workflows/self-settings-check.yml`, which calls the reusable `settings-check.yml@main` with `type: meta` on any PR/push touching `.claude/settings.json`. Run `/king:doctor` for a health check (plugin version, agreement/settings drift).
