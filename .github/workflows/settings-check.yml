@@ -1,0 +1,25 @@
+name: settings-check
+
+# Reusable: byte-gates a repo's .claude/settings.json against config's <type> template
+# (adamkingdotnet/config @main). Callers pass `type` and set their own path filters.
+
+on:
+  workflow_call:
+    inputs:
+      type:
+        required: true
+        type: string
+
+jobs:
+  settings:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: .claude/settings.json matches config's template
+        env:
+          TYPE: ${{ inputs.type }}
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/adamkingdotnet/config/main/scripts/check-settings.sh -o /tmp/check-settings.sh
+          bash /tmp/check-settings.sh "$TYPE" .claude/settings.json
