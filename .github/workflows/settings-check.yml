@@ -1,0 +1,30 @@
+name: settings-check
+
+# Reusable: assert the caller repo's .claude/settings.json matches the
+# template for its type (e.g. "next" for Next.js projects) from
+# adamkingdotnet/config. Callers add a thin settings.yml:
+#   jobs:
+#     settings:
+#       uses: adamkingdotnet/.github/.github/workflows/settings-check.yml@main
+#       with:
+#         type: next
+
+on:
+  workflow_call:
+    inputs:
+      type:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  settings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: .claude/settings.json matches config's ${{ inputs.type }} template
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/adamkingdotnet/config/main/scripts/check-settings.sh -o /tmp/check-settings.sh
+          bash /tmp/check-settings.sh "${{ inputs.type }}" .claude/settings.json
