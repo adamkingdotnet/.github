@@ -19,7 +19,6 @@ caller that delegates to one of these (see below).
 | `tofu-apply.yml` | `tofu apply -auto-approve` on push to `main` |
 | `tofu-pr-check.yml` | `tofu fmt -check`, `validate`, and `plan` on pull requests |
 | `tofu-drift-check.yml` | weekly `tofu plan`; fails if live infrastructure has drifted |
-| `agents-check.yml` | verify a repo's `AGENTS.md` shared block matches the canonical one in `adamkingdotnet/config` |
 
 ## Calling pattern
 
