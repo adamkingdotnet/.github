@@ -13,6 +13,15 @@ Organization-level shared workflows and templates for the `adamkingdotnet` GitHu
 - Workflows are `workflow_call`-only (no direct `on:` triggers except `lint.yml` which validates the workflows themselves).
 - Consumers call via: `uses: adamkingdotnet/.github/.github/workflows/<name>.yml@main`
 
+## Key Files
+
+- `README.md` — Workflow reference table with calling patterns. **Read this first.**
+- `.github/workflows/` — Reusable GitHub Actions workflows (called via `workflow_call`).
+
+## Skip These
+
+- `profile/README.md` — GitHub org profile page (not relevant to code changes).
+
 ## Notes
 
 <!-- Quick-add scratchpad below -->
