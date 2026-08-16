@@ -5,13 +5,12 @@ Organization-level shared workflows and templates for the `adamkingdotnet` GitHu
 ## Structure
 
 - **`.github/workflows/`** — Reusable workflows (called via `workflow_call`) and self-linting CI.
-- **`profile/README.md`** — Org profile shown on github.com/adamkingdotnet.
 - **`README.md`** — Workflow reference table with calling patterns.
 
 ## Architecture
 
 - Workflows are `workflow_call`-only (no direct `on:` triggers except `lint.yml` which validates the workflows themselves).
-- Consumers call via: `uses: adamkingdotnet/.github/.github/workflows/<name>.yml@main`
+- Consumers call via: `uses: adamkingdotnet/.github/.github/workflows/<name>.yml@<sha>` (SHA-pinned with a `# main` comment; dependabot updates the pins) or `@main`.
 
 ## Key Files
 
@@ -19,8 +18,6 @@ Organization-level shared workflows and templates for the `adamkingdotnet` GitHu
 - `.github/workflows/` — Reusable GitHub Actions workflows (called via `workflow_call`).
 
 ## Skip These
-
-- `profile/README.md` — GitHub org profile page (not relevant to code changes).
 
 ## Notes
 

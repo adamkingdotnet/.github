@@ -44,8 +44,10 @@ jobs:
 
 ## Versioning
 
-Consumers reference `@main`. If a breaking change becomes likely, these will move
-to tags (`@v1`) and consumers will pin to a tag.
+Consumers may reference `@main`, but pinning to a commit SHA is preferred and
+is what newer consumers do (dependabot keeps the trailing `# main` comment
+updated when this repo advances). If a breaking change becomes likely, these
+will move to tags (`@v1`) and consumers will pin to a tag.
 
 `lint.yml` runs [actionlint](https://github.com/rhysd/actionlint) on every change
 here, since a reusable workflow's mistakes otherwise only surface downstream.
